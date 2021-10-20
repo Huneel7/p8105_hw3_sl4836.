@@ -39,3 +39,123 @@ dir.create(file.path(getwd(), "HW3_data_file"), recursive = TRUE)
 list.files()
 ```
 
+### Problem 1_Import Data and Data_Summary
+```{r, warning=FALSE, message=FALSE}
+library(p8105.datasets)
+data("instacart")
+```
+
+### Problem 1_Data_Summary
+```{r, warning=FALSE, message=FALSE}
+instacart <- instacart 
+
+instacart %>% head
+
+instacart_names <- names(instacart)
+instacart_nrow <- nrow(instacart)
+instacart_ncol <- ncol(instacart)
+```
+The size of the dataset is **`r instacart_nrow` x**  **`r instacart_ncol`** and **`r instacart_ncol`** variables: *`r instacart_names`.* There are **`r instacart_nrow`** number of observations without missing data. Among these, there are 4 character variables and 11 numeric variables. 
+
+
+### Problem 1_(a)_Answering how many aisles are there, and which aisles are the most items ordered from.
+```{r, warning=FALSE, message=FALSE}
+Arranged_aisles <- 
+  instacart %>% 
+  group_by(aisle) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n))
+
+number_aisles <- 
+  nrow(Arranged_aisles)
+
+top_3_item <- 
+  Arranged_aisles %>% 
+  mutate(aisle = str_to_title(aisle)) %>% 
+  pull(aisle) %>%
+  head(3)
+
+top_item <- 
+  Arranged_aisles %>% 
+  mutate(aisle = str_to_title(aisle)) %>% 
+  pull(aisle) %>%
+  first()
+```
+There are **`r number_aisles`** aisles. Among them, top 3 aisles that have the most ordered items are **`r top_3_item`.** It follows that **`r top_item`** has the largest number of ordered items. 
+
+### Problem 1_(b)_Making a plot that shows the number of items ordered in each aisle
+```{r, warning=FALSE, message=FALSE}
+Arranged_aisles %>% 
+  filter(n>10000) %>%
+  ggplot(aes(x = reorder(aisle, n), y = n)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  labs(y = "Number of Items", 
+       x = "Aisles", 
+       title = "The Number of Items Ordered in Each Aisle",
+       subtitle = "From aisles that have at least more than 10,000 items") +
+  theme(axis.text.y = element_text(size =7.5, face="bold"))
+
+```
+
+This plot shows the number of items ordered in each aisles with at least 10,000 items in a descending order. As aforementioned from the previous part, fresh vegetables aisle has the largest number of items, followed by fresh fruits aisle, packaged vegetables fruits aisle, yogurt aisle, etc. 
+
+
+
+
+### Problem 1_(c)_making a table showing the three most popular items in each aisles
+
+```{r, warning=FALSE, message=FALSE}
+options(knitr.kable.NA = 0)
+
+baking_top3 <- instacart %>% 
+  filter(aisle == "baking ingredients") %>% 
+  group_by(product_name) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  slice(1:3) %>%
+  mutate(aisle = "baking ingredients")
+
+dog_food_top3 <- instacart %>% 
+  filter(aisle == "dog food care") %>% 
+  group_by(product_name) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  slice(1:3) %>%
+  mutate(aisle = "dog food care")
+
+packaged_vege_fruit_top3 <- instacart %>% 
+  filter(aisle == "packaged vegetables fruits") %>% 
+  group_by(product_name) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  slice(1:3) %>%
+  mutate(aisle = "packaged vegetables fruits")
+
+bind_rows(baking_top3 ,
+          dog_food_top3, 
+          packaged_vege_fruit_top3)  %>%
+    mutate(aisle = str_to_title(aisle)) %>%
+  rename(Aisle = aisle) %>%
+  knitr::kable(align = "c", format = "pipe", 
+               caption = "**Table 1: Three Most Popular Items 
+               with their counts in Each Aisles**")
+```
+This table shows three most popular items with their counts in eash Aisles. In Baking Ingredients aisle, **light brown sugar, pure baking soda, and cande sugar** are top 3 popular items. In Dog Food Care aisle, **snack sticks chicken & rice recipe dog treats, organix chicken & brown rice recipe, and small dog biscuits** are top 3 popular items. In Packaged Vegetables Fruits aisle, **organic baby spinach, organic raspberries, and organic blueberries** are top 3 popular items.
+
+### Problem 1_(d)_Making a table showing the mean hour of the day
+```{r, warning=FALSE, message=FALSE}
+instacart %>% 
+  filter(product_name == "Pink Lady Apples" |product_name == "Coffee Ice Cream") %>%
+  group_by(product_name, order_dow) %>% 
+  summarise(mean_hour = mean(order_hour_of_day)) %>%
+  rename(Product_Name = product_name) %>%
+  pivot_wider(names_from = order_dow, values_from = mean_hour) %>%
+  knitr::kable(align = "c", format = "pipe",
+               caption = "**The Mean Hour of the Day at which
+               Each Item is Ordered on Each Day**"
+               )
+  
+```
+This tables shows the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week. For Coffee Ice Cream, Day 2 has the longest mean hour whereas Day 5 has the least mean hour. For Pink Lady Apples, Day 3 has the longest mean hour whereas Day 1 has least mean hour. 
+
