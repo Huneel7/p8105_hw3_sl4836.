@@ -264,3 +264,69 @@ brfss_clean %>%
 
 This twp-panel plot shows the distribution of BRFSS data value for responses from Poor to Excellent in 2006 and 2010. It appears that there is a similar overall trend between 2006 and 2010, but the distribution of data value is quite different within response levels between 2006 and 2010. 
 
+### Problem 3_(a)_Loading, Tidying, and Wrangling Data
+```{r, warning=FALSE, message=FALSE}
+accel <- read.csv("./hw3_data_file/accel_data.csv") 
+
+clean_accel <- accel %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(activity_1:activity_1440, 
+               names_to = "minutes_in_a_day", values_to = "activity_count", names_prefix =  "activity_") %>%
+  mutate(day = day %>% 
+           fct_relevel("Sunday", "Monday", "Tuesday", "Wednesday","Thursday","Friday", "Saturday")) %>% 
+  mutate(weekday_vs_weekend = ifelse(day %in% c("Monday", "Tuesday", "Wednesday", "Thursday","Friday"), "weekday","weekend")) %>% 
+  mutate_if(is.double, as.integer) %>%
+  mutate(minutes_in_a_day = as.integer(minutes_in_a_day))
+  
+```
+
+### Problem 3_(a)_Describing the resulting dataset using in-line
+```{r, warning=FALSE, message=FALSE}
+accel_row <- accel %>% nrow()
+accel_col <- accel %>% ncol()
+accel_names <- accel %>% names()
+
+
+clean_accel_row <- clean_accel %>% nrow()
+clean_accel_col <- clean_accel %>% ncol()
+clean_accel_names <- clean_accel %>% names()
+
+```
+
+Originally, the dimension of the pols_month_data was **`r accel_row` x**  **`r accel_col`** and there are **`r accel_col`** variables. This represents one person's activity data for **`r accel_row`** days. After tidying and wrangling the data, the dimension is **`r clean_accel_row` x**  **`r clean_accel_col`** and **`r clean_accel_col`** variables: *`r clean_accel_names`.* There are **`r clean_accel_row`** number of observations, this total number is indeed the number of combined data of each 1440 minutes of 35 days, namely **35x1440 =** **`r clean_accel_row`** from original data.  
+
+
+### Problem 3_(b)_Creating a table that shows aggregation of a total activity for each day
+```{r, warning=FALSE, message=FALSE}
+clean_accel %>% 
+  group_by(day) %>% 
+  summarize(total = sum(activity_count)) %>% 
+  rename(Day = day, Total = total) %>%
+  knitr::kable(align = "c", format = "pipe", caption = "**Table 1:
+               Aggregation of a Total Activity across Minutes for Each Day**")
+
+```
+
+According to the Table 1, it's hard to say there are apparent trends across days except that the total activity aggregation on Saturday is far lower than any other days as one can expect people normally would like to rest on Saturday. It is also to be observed the total activity on Friday has the highest aggregation.
+
+
+
+
+### Part 3_(c)_Making a single-panel plot that shows the 24-hour activity time courses for each day.
+```{r, warning=FALSE, message=FALSE}
+clean_accel %>%
+  group_by(day, minutes_in_a_day) %>%
+  rename(Day = day) %>%
+  ggplot(aes(minutes_in_a_day, activity_count, color = Day)) +
+  geom_point() +
+  scale_x_continuous(
+    breaks = c(0, 180, 360, 540, 720, 900, 1080, 1260, 1440),
+    labels = c("0hr", "3hr", "6hr", "9hr", "12hr", "15hr", "18hr", "21hr", "24hr")) + 
+  labs(x = "Hours", y="Activity Count") +
+  ggtitle("24-hour Activity Time Courses for Each Day with one-minute interval") + 
+  theme(plot.title = element_text(size=12))
+
+```
+
+Between 0hr (12am) to 6hr (6am), it is to be observed that the activity count of a 63 year-old male is the lowest across days as one can expect people normally sleep during those times. Around 7hr (7am), his activity count is relatively high on some Thursdays. Around 9hr (9am), his activity count is quite high on some Fridays. Around 12hr (12pm), his activity count is high on many Sundays. Between 16hr (4pm) and 17hr (5pm), his activity count is relatively high on a decent number of weekends. Between 20hr (8pm) and 22hr(10pm), his activity count is high across many days, especially on Friday followed by Saturday, Wednesday, and Monday. 
+
