@@ -159,3 +159,108 @@ instacart %>%
 ```
 This tables shows the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week. For Coffee Ice Cream, Day 2 has the longest mean hour whereas Day 5 has the least mean hour. For Pink Lady Apples, Day 3 has the longest mean hour whereas Day 1 has least mean hour. 
 
+### Problem 2_Data Import
+```{r, warning=FALSE, message=FALSE}
+data("brfss_smart2010") 
+```
+
+### Problem 2_(a)_Data_Cleaning
+```{r, warning=FALSE, message=FALSE}
+brfss <- brfss_smart2010 
+
+
+brfss_clean <- brfss %>% 
+  janitor::clean_names() %>% 
+  filter(topic == "Overall Health") %>%
+  filter(response %in% c("Excellent", "Very good",
+                         "Good","Fair", "Poor" )) %>%
+  mutate(response = as.factor(response) %>% 
+           fct_relevel("Poor", "Fair", "Good", "Very good",
+                       "Excellent")) 
+
+```
+
+
+
+After filtering Overall Health level solely from Topic variable, I included responses from Excellent to Poor. And then I re-leveled the response variable from Poor to Excellent.
+
+### Problem 2_(b)_Showing States observed at 7 or more observations in 2002
+```{r, warning=FALSE, message=FALSE}
+
+brfss_clean_2002 <-
+  brfss_clean %>% 
+  rename(States = locationabbr) %>%
+  filter(year == 2002) %>% 
+  group_by(States) %>% 
+  summarise(n = n_distinct(locationdesc)) %>% 
+  filter(n >= 7) %>%
+  arrange(n)
+
+brfss_clean_2002_States <- brfss_clean_2002 %>% pull(States)  
+brfss_clean_2002 %>% knitr::kable()
+
+
+
+```
+
+ **`r brfss_clean_2002_States`** are the states that were observed at 7 or more observations in 2002. 
+
+### Problem 2_(b)_Showing States observed at 7 or more observations in 2010
+```{r, warning=FALSE, message=FALSE}
+brfss_clean_2010 <-
+  brfss_clean %>% 
+  rename(States = locationabbr) %>%
+  filter(year == 2010) %>%
+  group_by(States) %>% 
+  summarise(n = n_distinct(locationdesc)) %>% 
+  filter(n >= 7) %>%
+  arrange(n) 
+  
+  
+brfss_clean_2010_States <- brfss_clean_2010 %>% pull(States)  
+brfss_clean_2010 %>% knitr::kable()
+  
+
+```
+ **`r brfss_clean_2010_States`** are the states that were observed at 7 or more observations in 2010. 
+
+
+### Problem 2_(c)_Making a spaghetti plot of BRFSS data average value over time within a state 
+```{r, warning=FALSE, message=FALSE}
+brfss_clean %>% 
+  filter(response == "Excellent") %>%
+  rename(States = locationabbr) %>%
+  group_by(year, States) %>%
+  summarise(mean_data_value = mean(data_value, na.rm=T)) %>% 
+  ggplot(aes(year, mean_data_value, color=States)) + 
+  geom_point(size=0.2) + 
+  geom_line(aes(group=States), alpha=0.5) +
+  labs(y = "Average Value", x = "Year") +
+  theme(legend.position = "right", legend.title =
+          element_text(colour="black", size=10, face="bold"), 
+        legend.key.size = unit(0.5, 'cm')) 
+ 
+
+```
+
+This is a spaghetti plot that shows a line of the average BRFSS data value over time within a state from 2002 to 2010. It appears that the average values are relatively high in 2002 across states. 
+
+
+### Problem 2_(d)_Making the distribution of BRFSS data_value for responses in 2006 and 2010
+```{r, warning=FALSE, message=FALSE}
+library(ggridges)
+
+brfss_clean %>% 
+  filter(year == 2006 | year == 2010, locationabbr == "NY") %>%
+  group_by(locationdesc) %>%
+  ggplot(aes(response, data_value, color = response)) +
+  geom_boxplot() +
+  facet_wrap(.~year) + 
+  ggtitle("Distribution of data_value for responses in NY State") +
+  labs(x = "Levels of Response", y = "BRFSS Data Value") +
+  scale_color_discrete(name="Levels of Response:") +
+  theme(axis.text.x = element_text(size=8))
+```
+
+This twp-panel plot shows the distribution of BRFSS data value for responses from Poor to Excellent in 2006 and 2010. It appears that there is a similar overall trend between 2006 and 2010, but the distribution of data value is quite different within response levels between 2006 and 2010. 
+
