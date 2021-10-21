@@ -154,7 +154,7 @@ instacart %>%
   rename(Product_Name = product_name) %>%
   pivot_wider(names_from = order_dow, values_from = mean_hour) %>%
   knitr::kable(align = "c", format = "pipe",
-               caption = "**The Mean Hour of the Day at which
+               caption = "**Table 2: The Mean Hour of the Day at which
                Each Item is Ordered on Each Day**"
                )
   
@@ -221,7 +221,7 @@ brfss_clean_2002 <-
   arrange(n)
 
 brfss_clean_2002_States <- brfss_clean_2002 %>% pull(States)  
-brfss_clean_2002 %>% knitr::kable()
+brfss_clean_2002 %>% knitr::kable(caption = "**Table3: States observed at 7 or more observations in 2002**")
 
 
 
@@ -242,7 +242,7 @@ brfss_clean_2010 <-
   
   
 brfss_clean_2010_States <- brfss_clean_2010 %>% pull(States)  
-brfss_clean_2010 %>% knitr::kable()
+brfss_clean_2010 %>% knitr::kable(caption = "**Table4: States observed at 7 or more observations in 2010**")
   
 
 ```
@@ -259,15 +259,17 @@ brfss_clean %>%
   ggplot(aes(year, mean_data_value, color=States)) + 
   geom_point(size=0.2) + 
   geom_line(aes(group=States), alpha=0.5) +
-  labs(y = "Average BRFSS Data Value", x = "Year") +
+  labs(y = "Average BRFSS Data Value", 
+       x = "Year",
+       title = "Average Value Over Time within a State") +
   theme(legend.position = "right", legend.title =
           element_text(colour="black", size=10, face="bold"), 
-        legend.key.size = unit(0.5, 'cm')) 
+        legend.key.size = unit(0.35, 'cm')) 
  
 
 ```
 
-This is a spaghetti plot that shows a line of the average BRFSS data value over time within a state from 2002 to 2010. It's hard to say if there are apparent trends across states between 2002 and 2010. One thing to be observed is that the average BRFSS data values of the states are relatively high in 2002. 
+This is a spaghetti plot that shows a line of the average BRFSS data value over time within a state from 2002 to 2010. It's hard to say if there are apparent trends within a state between 2002 and 2010. One thing to be observed is that the average BRFSS data values of the states are relatively high in 2002. 
 
 
 ### Problem 2_(d)_Making the distribution of BRFSS data_value for responses in 2006 and 2010
@@ -328,7 +330,7 @@ clean_accel %>%
   group_by(day) %>% 
   summarize(total = sum(activity_count)) %>% 
   rename(Day = day, Total = total) %>%
-  knitr::kable(align = "c", format = "pipe", caption = "**Table 1:
+  knitr::kable(align = "c", format = "pipe", caption = "**Table 5:
                Aggregation of a Total Activity across Minutes for Each Day**")
 
 ```
