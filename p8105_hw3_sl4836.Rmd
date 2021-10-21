@@ -30,6 +30,8 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
+
+
 ### Problem 0
 ```{r, warning=FALSE, message=FALSE}
 getwd()
@@ -159,12 +161,14 @@ instacart %>%
 ```
 This tables shows the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week. For Coffee Ice Cream, Day 2 has the longest mean hour whereas Day 5 has the least mean hour. For Pink Lady Apples, Day 3 has the longest mean hour whereas Day 1 has least mean hour. 
 
+
+
 ### Problem 2_Data Import
 ```{r, warning=FALSE, message=FALSE}
 data("brfss_smart2010") 
 ```
 
-### Problem 2_(a)_Data_Cleaning
+### Problem 2_(a)_Data_tidying & wrangling
 ```{r, warning=FALSE, message=FALSE}
 brfss <- brfss_smart2010 
 
@@ -178,11 +182,31 @@ brfss_clean <- brfss %>%
            fct_relevel("Poor", "Fair", "Good", "Very good",
                        "Excellent")) 
 
+brfss_row <- 
+  brfss %>% 
+  nrow()
+brfss_col <- 
+  brfss %>% 
+  ncol()
+brfss_names <-
+  brfss %>% 
+  names()
+
+brfss_clean_row <- 
+  brfss_clean %>% 
+  nrow()
+brfss_clean_col <- 
+  brfss_clean %>% 
+  ncol()
+brfss_clean_names <- 
+  brfss_clean %>% 
+  names()
 ```
 
-
-
 After filtering Overall Health level solely from Topic variable, I included responses from Excellent to Poor. And then I re-leveled the response variable from Poor to Excellent.
+
+Originally, the size of the dataset is **`r brfss_row` x**  **`r brfss_col`.** And there are **`r brfss_col`** variables and  **`r brfss_row`** observations. After tidying and wrangling the original data, the size of the dataset is **`r brfss_clean_row` x**  **`r brfss_clean_col`.** And there are **`r brfss_clean_col`** variables and **`r brfss_clean_row`** observations.
+
 
 ### Problem 2_(b)_Showing States observed at 7 or more observations in 2002
 ```{r, warning=FALSE, message=FALSE}
@@ -235,7 +259,7 @@ brfss_clean %>%
   ggplot(aes(year, mean_data_value, color=States)) + 
   geom_point(size=0.2) + 
   geom_line(aes(group=States), alpha=0.5) +
-  labs(y = "Average Value", x = "Year") +
+  labs(y = "Average BRFSS Data Value", x = "Year") +
   theme(legend.position = "right", legend.title =
           element_text(colour="black", size=10, face="bold"), 
         legend.key.size = unit(0.5, 'cm')) 
@@ -243,7 +267,7 @@ brfss_clean %>%
 
 ```
 
-This is a spaghetti plot that shows a line of the average BRFSS data value over time within a state from 2002 to 2010. It appears that the average values are relatively high in 2002 across states. 
+This is a spaghetti plot that shows a line of the average BRFSS data value over time within a state from 2002 to 2010. It's hard to say if there are apparent trends across states between 2002 and 2010. One thing to be observed is that the average BRFSS data values of the states are relatively high in 2002. 
 
 
 ### Problem 2_(d)_Making the distribution of BRFSS data_value for responses in 2006 and 2010
@@ -263,6 +287,8 @@ brfss_clean %>%
 ```
 
 This twp-panel plot shows the distribution of BRFSS data value for responses from Poor to Excellent in 2006 and 2010. It appears that there is a similar overall trend between 2006 and 2010, but the distribution of data value is quite different within response levels between 2006 and 2010. 
+
+
 
 ### Problem 3_(a)_Loading, Tidying, and Wrangling Data
 ```{r, warning=FALSE, message=FALSE}
